@@ -1,0 +1,9 @@
+---
+- name: Join AD 
+  hosts: all
+  become: true
+  vars_files:
+    - ./vars/morpheus_vars.yml
+    - ./vars/global_vars.yml
+  roles:
+    - role: lin_ad_join_computer

@@ -1,0 +1,3 @@
+db_name: "{{ m_custom_options.db_name | default('test') }}"
+postgres_owner: "{{ m_custom_options.ldap_user | default('root') }}"
+postgres_group: postgres

@@ -1,0 +1,74 @@
+#todo
+
+# # tasks file for lin_join_ad
+# # may only work during build
+# # - name: Update hostname if not set correctly 
+# #   hostname:
+# #     name: "{{ ansible_hostname }}.{{ realm_cn }}"
+# #     use: redhat
+
+# - name: Install required Packages RedHat
+#   yum:
+#     name: "{{ ad_packages_rhel }}"
+#     state: present
+#   when: ansible_distribution == 'RedHat'
+
+# - name: Install nsswitch configuration file
+#   copy:
+#     src: nsswitch.conf
+#     dest: /etc/nsswitch.conf
+
+# - name: Install realmd configuration file
+#   template:
+#     src: realmd.conf.j2
+#     dest: /etc/realmd.conf
+#   # ignore errors here because these command will throw errors 
+#   # if any of these accounts are in AD 
+# - name: Join realm
+#   shell: echo "{{ realm_password }}"| realm join -U "{{ realm_admin }}" "{{ realm }}"
+#   #no_log: true
+#   ignore_errors: true
+#   register: realm_results
+
+# - name: Create server group
+#   shell: echo -n "{{ realm_password }}"|adcli create-group -U "{{ realm_admin }}" -D "{{ realm }}" --stdin-password "{{ ansible_hostname }}" --domain-ou="{{ group_ou }}"
+#   #no_log: true
+#   ignore_errors: true
+#   register: group_results
+
+# - name: Permit server group
+#   shell: echo "{{ realm_password }}"| realm permit -g "{{ ansible_hostname }}"
+#   no_log: true
+#   ignore_errors: true
+#   register: group_results
+#     # Using lineinfile because the sssd config is generated
+#     # During realm join and most settings are good with that 
+#     # file just want to append some of our settings
+# - name: Add sssd conf lines
+#   lineinfile:
+#     path: /etc/sssd/sssd.conf
+#     line: "{{ item }}"
+#     state: present
+#     insertafter: '[{{ realm }}]'
+#   with_items:
+#     - 'ad_enable_gc = false'
+
+# - debug:
+#     msg:
+#       - "*********************"
+#       - "*** Realm Results ***"
+#       - "{{ realm_results.rc }}"
+#       - " "
+#       - "*********************"
+#       - "*** Group Results ***"
+#       - "{{ group_results.rc }}"
+
+# # Using lineinfile because the sssd config is generated
+# # During realm join and most settings are good with that 
+# # file just want to append some of our settings
+# - name: Replace Use fully qualified names
+#   replace:
+#     path: /etc/sssd/sssd.conf
+#     regexp: '^use_fully_qualified_names = True'
+#     replace: 'use_fully_qualified_names = false'
+#   notify: restart_sssd

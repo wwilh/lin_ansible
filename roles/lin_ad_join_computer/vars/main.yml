@@ -1,0 +1,47 @@
+---
+    # vars file for lin_join_ad
+
+    # Variables from morpheus
+    # group_ou: "{{ lookup('cypher','secret=secret/group_ou') }}"
+    # computer_ou: "{{ lookup('cypher','secret=secret/computer_ou') }}"
+    # realm: "{{ lookup('cypher','secret=secret/realm') }}"
+    # realm_admin_ansible: "{{ lookup('cypher','secret=secret/realm_admin_ansible') }}"
+    # realm_password: "{{ lookup('cypher','secret=secret/realm_password') }}"
+    # root_admin_group: "{{ lookup('cypher','secret=secret/root_admin_group') }}"
+
+    group_ou: "{{ lookup('hashi_vault', 'secret=Linux/data/active_directory token='\"{{ vault_token }}\" ' url=http://tklx00002.k24.lan:8200 validate_certs=False')|json_query('group_ou')}}"
+    computer_ou: "{{ lookup('hashi_vault', 'secret=Linux/data/active_directory token='\"{{ vault_token }}\" ' url=http://tklx00002.k24.lan:8200 validate_certs=False')|json_query('computer_ou')}}"
+    realm: "{{ lookup('hashi_vault', 'secret=Linux/data/active_directory token='\"{{ vault_token }}\" ' url=http://tklx00002.k24.lan:8200 validate_certs=False')|json_query('realm')}}"
+    realm_admin_ansible: "{{ lookup('hashi_vault', 'secret=Linux/data/active_directory token='\"{{ vault_token }}\" ' url=http://tklx00002.k24.lan:8200 validate_certs=False')|json_query('realm_admin_ansible')}}"
+    realm_password: "{{ lookup('hashi_vault', 'secret=Linux/data/active_directory token='\"{{ vault_token }}\" ' url=http://tklx00002.k24.lan:8200 validate_certs=False')|json_query('realm_admin_password')}}"
+    root_admin_group: "{{ lookup('hashi_vault', 'secret=Linux/data/active_directory token='\"{{ vault_token }}\" ' url=http://tklx00002.k24.lan:8200 validate_certs=False')|json_query('root_admin_group')}}"
+
+    # Packages to be installed
+    ad_packages_centos: 
+        - realmd
+        - oddjob
+        - oddjob-mkhomedir
+        - sssd
+        - adcli
+        - PackageKit
+        - samba-common-tools
+        - python-pip
+    
+    ad_packages_ubuntu:
+        - realmd
+        - oddjob
+        - oddjob-mkhomedir
+        - sssd
+        - sssd-tools
+        - adcli
+        - packagekit
+        - python3-pip
+
+    ad_packages_oel:
+        - realmd
+        - oddjob
+        - oddjob-mkhomedir
+        - sssd
+        - adcli
+        - PackageKit
+        - samba-common-tools

@@ -1,0 +1,10 @@
+---
+- name: Stat for /app location
+  stat:
+    path: /app
+  register: app_loc
+
+- name: Fail if /app not present
+  fail:
+    msg: "Install directory /app not on machine please add harddrive and mount as /app"
+  when: app_loc.stat.isdir is not defined

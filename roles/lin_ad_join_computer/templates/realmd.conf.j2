@@ -1,0 +1,13 @@
+[active-directory]
+default-client = sssd
+
+[service]
+automatic-install = no
+
+[users]
+default-home = /home/%U
+
+[{{ realm }}]
+manage-system = no
+fully-qualified-names = no
+computer-ou = {{ computer_ou }}

@@ -1,0 +1,66 @@
+- hosts: all
+  become: yes
+  pre_tasks:
+    # Shared logic included here with pre-tasks
+    - name: include global_vars.yml
+      include_vars: ./vars/global_vars.yml
+
+    - name: include morpheus/global vars file
+      include_vars: ./vars/morpheus_vars.yml
+
+    - debug:
+        msg:
+          - "Logging Variables from vars in project"
+          - "IP ADDRESS - {{ m_ip_addr | default({}) }}"
+          - "Ansible Distro Verison - {{ ansible_distribution_version }}"
+          - "m_cloud_code: {{ m_cloud_code }}"
+          - "m_cloud_region: {{ m_cloud_region }}"
+          - "m_cloud_name: {{ m_cloud_name }}"
+          - "m_instance_context: {{ m_instance_context }}"
+          - "m_instance_type_code: {{ m_instance_type_code }}"
+          - "m_instance_type_name: {{ m_instance_type_name }}"
+          - "m_instance_tenant: {{ m_instance_tenant }}"
+          - "m_account_name: {{ m_account_name }}"
+          - "m_created_by: {{ m_created_by }}"
+          - "m_group: {{ m_group }}"
+          - "m_metadata: {{ m_metadata }}{{ m_server_tags }}"
+          - "m_isDocker: {{ isDocker }}"
+          - "isRHEL7: {{ isRHEL7 }}"
+          - "isCENTOS7: {{ isCENTOS7 }}"
+          - "isUBUNTU2004: {{ isUBUNTU2004 }}"
+          - " ------------------------------------ "
+          - " Print EVARS: "
+          - "{{ m_instance_evars }}"
+  tasks:
+    - name: Include MOTD setup
+      include_role:
+        name: lin_set_motd
+
+    - name: Include Setting up the Custom Facts
+      include_role: 
+        name: lin_set_custom_facts
+
+    - name: Include Enable EPEL
+      include_role:
+        name: lin_enable_epel
+      when: > 
+        isCENTOS7
+        or isCENTOS8
+
+    - name: Include AD join
+      include_role:
+        name: lin_ad_join_computer
+      when: >
+        isCENTOS7
+        or isCENTOS8
+        or isUBUNTU2004
+
+  # Application / Agent settings 
+    - name: Include Install docker
+      include_role:
+        name: lin_install_docker
+      when: >
+        isDocker == 'on'
+        and (isCENTOS7 or isCENTOS8) 
+
+   

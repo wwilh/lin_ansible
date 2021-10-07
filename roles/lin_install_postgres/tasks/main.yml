@@ -1,0 +1,116 @@
+---
+- name: Include Gate 
+  include: gate.yml
+  
+- name: Create Postgres group
+  group:
+    name: postgres
+    state: present
+
+- name: Create Postgres system user
+  user:
+    name: postgres
+    comment: "System Postgres user for database"
+    group: postgres
+
+- name: Create DB Directory
+  file:
+    path: /app/postgres/
+    owner: "{{ postgres_owner }}"
+    group: "{{ postgres_group }}"
+    mode: 0770
+    state: directory
+
+- name: Copy PostgreSQL install files
+  copy:
+    src: postgres_latest
+    dest: /app/postgres/postgres_latest.tar
+    owner: "{{ postgres_owner }}"
+    group: "{{ postgres_group }}"
+    mode: 0770
+
+- name: Extract tar file
+  unarchive:
+    copy: no
+    dest: /app/postgres/
+    src: /app/postgres/postgres_latest.tar
+    owner: "{{ postgres_owner }}"
+    group: "{{ postgres_group }}"
+    mode: 0755
+
+- name: Take ownership of extracted file
+  file:
+    path: /app/postgres/
+    owner: "{{ postgres_owner }}"
+    group: "{{ postgres_group }}"
+    mode: 0770
+    recurse: yes
+
+- name: Install required GCC, readline-devel, zip-devel
+  yum: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gcc
+    - readline-devel
+    - zlib-devel
+    - python-psycopg2
+
+- name: Linking latest PostgreSQL
+  file:
+    src: /app/postgres/postgresql-10.6
+    dest: /app/postgres/postgres_latest
+    state: link
+    owner: "{{ postgres_owner }}"
+    group: "{{ postgres_group }}"
+    mode: 0770
+
+- name: Configure PostgreSQL
+  command: './configure chdir=/app/postgres/postgres_latest/ --prefix=/app/pgsql/'
+
+- name: Run PostgreSQL makefile
+  command: 'make chdir=/app/postgres/postgres_latest/'
+
+- name: Run 'make install'
+  command: 'make install chdir=/app/postgres/postgres_latest/'
+
+- name: Create DB directory structure
+  file:
+    path: /app/pgsql/data
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: 0755
+
+- name: Remove Postgres tar directory
+  file:
+    path: /app/postgres/postgresql-10.6.tar.gz
+    state: absent
+
+- name: Create database directory
+  file:
+    path: /home/"{{ postgres_owner }}"/{{ db_name }}
+    state: directory
+    owner: "{{ postgres_owner }}"
+    group: "{{ postgres_group }}"
+    mode: 0770
+
+- name: Initialize database
+  raw: '/app/pgsql/bin/initdb -D ~/{{ db_name }}'
+  become: yes
+  become_user: "{{ postgres_owner }}"
+
+- name: Create logfile
+  shell: '/app/pgsql/bin/pg_ctl -D ~/{{ db_name }} -l ~/{{ db_name }}-Logfile start'
+  become: yes
+  become_user: "{{ postgres_owner }}"
+  register: log
+
+- name: Output log information
+  debug: 
+    msg: "Log information: {{ log }}"
+
+- name: Create database
+  shell: '/app/pgsql/bin/createdb {{ db_name }}'
+  become: yes
+  become_user: "{{ postgres_owner }}"

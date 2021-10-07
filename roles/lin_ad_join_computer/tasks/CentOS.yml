@@ -1,0 +1,74 @@
+# tasks file for lin_join_ad
+- name: Install required packages CentOS
+  yum:
+    name: "{{ ad_packages_centos }}"
+    state: present
+  when: ansible_distribution == 'CentOS'
+
+- name: PIP install packages
+  pip:
+    name: [pexpect,ldap3]
+    state: latest
+
+- name: Install realmd configuration file
+  template:
+    src: realmd.conf.j2
+    dest: /etc/realmd.conf
+
+- name: Join the Realm
+  shell: echo "{{ realm_password }}"| realm join "{{ realm }}"
+  ignore_errors: true
+  register: realm_results
+
+- name: Template out the ldap_add.py
+  template: 
+    src: ldap_add.j2
+    dest: /root/ldap_add.py
+    mode: 0700
+
+- name: Run ldap_add 
+  shell: /root/ldap_add.py
+  register: ldap_results
+
+# - name: Clean up script
+#   file: 
+#     path: /root/ldap_add.py
+#     state: absent
+    
+- name: Permit computer group
+  expect:
+    command: realm permit -g "{{ ansible_hostname }}"
+    responses:
+      Password for Administrator: "{{ realm_password }}"
+  no_log: True
+
+- name: Permit root admins
+  expect:
+    command: realm permit -g "{{ root_admin_group }}"
+    responses:
+      Password for Administrator: "{{ realm_password }}"
+  no_log: True
+
+- name: Add sssd conf lines
+  lineinfile:
+    path: /etc/sssd/sssd.conf
+    line: "{{ item }}"
+    state: present
+    insertafter: '[{{ realm }}]'
+  with_items:
+    - 'ad_enable_gc = false'
+
+- name: Replace Use fully qualified names
+  replace:
+    path: /etc/sssd/sssd.conf
+    regexp: '^use_fully_qualified_names = True'
+    replace: 'use_fully_qualified_names = false'
+  notify: restart_sssd
+
+- name: Add the Linu root Admin sudoers
+  copy:
+    src: linux_root_admins
+    dest: /etc/sudoers.d/
+    owner: root
+    group: root
+    mode: 0640

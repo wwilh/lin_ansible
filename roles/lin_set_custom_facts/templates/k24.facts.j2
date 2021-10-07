@@ -1,0 +1,17 @@
+{% if m_instance_context == 't' %} 
+  {% set ENV = 'Non-Production' %}
+{% elif m_instance_context == 'n' %}
+  {% set ENV = 'Non-Production' %}
+{% elif m_instance_context == 'p' %}
+  {% set ENV = 'Production' %}
+{% elif m_instance_context == 'i' %}
+  {% set ENV = 'Infrastructure' %}
+{% endif %}
+
+{
+ "Environment": "{{ ENV | default('Undefined') }}",
+ "Purpose": "{{ org }}_{{ application }}-{{ org }}_{{tier }}",
+ "ContactEmailGroup": "{{ org }}_{{contact_email_group }}",
+ "Description": "{{ m_description }}",
+ "CreatedBy": "{{ m_created_by }}"
+}

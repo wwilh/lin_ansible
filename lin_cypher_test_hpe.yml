@@ -1,0 +1,16 @@
+---
+- name: Printing Test
+  hosts: all
+  become: True
+  pre_tasks:      
+    - name: include morpheus_vars.yml
+      include_vars: ./vars/morpheus_vars.yml
+  tasks:
+
+  - name: Print out cypher
+    debug: 
+      msg: "This is a secret from Cypher: {{ lookup('cypher','secret=secret/name') }}"
+
+  - name: Print out morpheus varable
+    debug:
+      msg: "This is a morpheus variable: {{ morpheus['instance']['hostname'] }}"

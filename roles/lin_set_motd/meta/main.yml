@@ -1,0 +1,14 @@
+galaxy_info:
+  role_name: lin_set_motd
+  author: Todd A. Kearney
+  description: This role will create a standard motd adding some of the Ansible facts and a ASCII image
+  company: NA
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "7"
+    - name: Ubuntu
+      versions:
+        - "focal"

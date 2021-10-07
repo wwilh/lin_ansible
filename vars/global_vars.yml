@@ -1,0 +1,8 @@
+# This file is used as a global variables file. 
+
+isRHEL7: "{{ ansible_distribution_major_version == '7' and ansible_distribution == 'RedHat' }}"
+isRHEL6: "{{ ansible_distribution_major_version == '6' and ansible_distribution == 'RedHat' }}"
+isCENTOS7: "{{ ansible_distribution_major_version == '7' and ansible_distribution == 'CentOS' }}"
+isCENTOS8: "{{ ansible_distribution_major_version == '8' and ansible_distribution == 'CentOS' }}"
+isUBUNTU2004: "{{ ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04' }}"
+isUBUNTU1804: "{{ ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04' }}"

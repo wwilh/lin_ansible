@@ -1,0 +1,104 @@
+---
+    - name: SERVERS | Get timestamp
+      command: "date +%Y%m%d@%H:%M:%S"
+      changed_when: False
+      register: time
+    
+    # - name: SERVERS | Check for old notes on server.
+    #   shell: egrep -i 'LBrands.Notes.[0-9]|LBrands.Notes' /etc/rhsm/facts/{{ org }}.fact
+    #   when: > 
+    #     rhsm_facts.stat.exists
+    #   changed_when: false
+    #   register: old_notes
+    
+    - name: SERVERS | Backup old {{ org }}.facts
+      command: mv /etc/rhsm/facts/{{ org }}.fact /etc/rhsm/facts/{{ org }}.fact.{{ timestamp }}
+      when: > 
+        rhsm_facts.stat.exists
+    
+    - name: SERVERS | Put {{ org }}.facts on the server for custom facts in satellite6
+      template:
+        src: "{{ org }}.facts.j2"
+        dest: /etc/rhsm/facts/{{ org }}.fact
+        owner: root
+        group: root
+        mode: 0644
+      when: > 
+        rhsm_facts.stat.exists
+
+    - name: SERVERS | ReCheck to see if RedHat facts file is on the system
+      stat:
+        path: /etc/rhsm/facts/{{ org }}.fact
+      register: rhsm_facts
+      when: >
+        not rhsm_facts.stat.exists
+        and subscription_manager_installed.rc == 0
+    
+    # - name: SERVERS | Put {{ org }}.facts notes on the server.
+    #   lineinfile:
+    #     path: /etc/rhsm/facts/"{{ org }}.fact"
+    #     line: '"LBrands.Notes.{{ timestamp }}":"{{ notes }}",'
+    #     state: present
+    #     insertafter: '"LBrands.Notes":"LBrands Notes",'
+    #   when: > 
+    #     rhsm_facts.stat.exists
+    
+    # - name: SERVERS | Put old facts back on machine
+    #   lineinfile:
+    #     path: /etc/rhsm/facts/{{ org }}.fact
+    #     line: "{{ item }}"
+    #     state: present
+    #     insertafter: '"LBrands.Notes":"LBrands Notes",'
+    #   with_items: "{{ old_notes.stdout_lines|list }}"
+    #   when: >
+    #     rhsm_facts.stat.exists
+
+    - name: SERVERS | Stat to see if RedHat facts file is on the system
+      stat:
+        path: /etc/rhsm/facts/{{ org }}.fact
+      register: rhsm_facts
+
+    - name: SERVERS | Create ansible facts.d directory if it is not there.
+      file:
+        state: directory
+        path: /etc/ansible/facts.d
+        owner: root
+        group: root
+        mode: 0755
+      when: > 
+        not ansible_facts_dir.stat.exists
+      
+    - name: SERVERS | Put {{ org }}.facts on the server for custom facts in Ansible
+      template:
+        src: "{{ org }}.facts.j2"
+        dest: /etc/ansible/facts.d/{{ org }}.fact
+        owner: root
+        group: root
+        mode: 0644
+      when: > 
+        not rhsm_facts.stat.exists
+    
+    # Test again
+    - name: SERVERS | Check for ansible facts.d directory again to reset the registered variable
+      stat:
+        path: /etc/ansible/facts.d
+      register: 
+        ansible_facts_dir
+
+    - name: SERVERS | DEBUG Report on checks for files
+      debug:
+        msg:
+          - "Subscription-manager install status: {{ subscription_manager_installed.rc }}" 
+          - "Satellite Facts: {{ rhsm_facts.stat.exists }}"
+          - "Ansible Facts Directory: {{ ansible_facts_dir.stat.exists }}"
+
+    - name: SERVERS | Link satellite facts to ansible facts
+      file:
+        state: link
+        src: /etc/rhsm/facts/{{ org }}.fact
+        dest: /etc/ansible/facts.d/{{ org }}.fact
+        owner: root
+        group: root
+      when: >
+        rhsm_facts.stat.exists
+        and ansible_facts_dir.stat.exists

@@ -1,0 +1,8 @@
+- name: Add current user to group for libvirtd
+  ansible.builtin.user:
+    name: "{{ user.username }}"
+    state: present
+    password: "{{ user.password | password_hash('sha512') }}"
+    comment: "{{ user.comment }}"
+    append: True
+    groups: libvirt,kvm

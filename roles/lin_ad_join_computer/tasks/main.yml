@@ -1,0 +1,12 @@
+---
+- name: Include vault.yml
+  include_vars: ./vars/vault.yml
+
+- name: Include Standard AD connection
+  include: "{{ ansible_distribution }}.yml"
+
+# - name: Remove the ldap script
+#   file: 
+#     path: /root/ldap_add.py
+#     state: absent
+    

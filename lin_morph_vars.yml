@@ -1,0 +1,28 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+  # - name: Print out all morpheus vars
+  #   debug: 
+  #     msg: "{{ hostvars[inventory_hostname]['morpheus'] | to_nice_yaml }}"
+
+  - name: Print out all morpheus vars
+    debug: 
+      msg: "Hostname: {{ morpheus | to_json(ensure_ascii=False) }}"
+
+  # - name: Print out all morpheus vars
+  #   debug: 
+  #     msg: "Hostname: {{ morpheus['instance']['hostname'] }}"
+
+  # - name: Print out morpheus server vars
+  #   debug:
+  #     msg: "{{ hostvars[inventory_hostname]['morpheus']['server'] | to_nice_yaml}}"
+      
+  # - name: Print out morpheus results
+  #   debug:
+  #     msg: "{{ hostvars[inventory_hostname]['morpheus']['results'] }}"
+      
+  # - name: Print out morpheus result echo
+  #   debug:
+  #     msg: "{{ hostvars[inventory_hostname]['morpheus']['results']['echo'] }}"

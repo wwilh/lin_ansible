@@ -1,0 +1,13 @@
+---
+- name: MAIN | MOTD on linux server 
+  template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 0644
+
+- name: MAIN | Include Ubuntu solution
+  include: "{{ ansible_distribution | lower }}.yml"
+  when: > 
+    ansible_distribution | lower == "ubuntu"

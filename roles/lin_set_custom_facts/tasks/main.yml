@@ -1,0 +1,6 @@
+---
+- name: MAIN | Run gate.yml
+  include: gate.yml
+
+- name: MAIN | Include main_servers.yml when lab not is FQDN
+  include: servers.yml

@@ -1,0 +1,13 @@
+# File for gate testing before running a role on server
+
+# Uncomment for debug information
+# - name: debug user
+#   ansible.builtin.debug:
+#     var: user
+
+- name: Assert that the password trying to be used is not blank 
+  ansible.builtin.assert:
+    that: >
+      user.password != None
+    fail_msg: The user_pass is an empty variable
+  

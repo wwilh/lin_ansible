@@ -1,0 +1,26 @@
+    __ _____  __ __  __         __  
+   / //_|__ \/ // / / /  ____ _/ /_ 
+  / ,<  __/ / // /_/ /  / __ `/ __ \
+ / /| |/ __/__  __/ /__/ /_/ / /_/ /
+/_/ |_/____/ /_/ /_____\__,_/_.___/ 
+                                                                                                              
+| IF YOU BREAK IT FIX IT |
+Machine Name: 
+  {{ ansible_hostname }}
+Machine OS and Version: 
+  {{ ansible_distribution }} {{ ansible_distribution_version }}
+Memory: 
+  Memory_MB: {{ ansible_memtotal_mb }}
+CPU:
+  Count: {{ ansible_processor_count }}
+  Cores: {{ ansible_processor_cores }}
+Network:
+  {{ ansible_default_ipv4.address }}
+  {{ ansible_default_ipv4.netmask }}
+{% if morpheus %}
+Morpheus:
+  Metadata:   {{ m_metadata }}{{ m_server_tags }}
+  Created BY:    {{ m_created_by }}
+  Instance Type: {{ m_instance_type_name }}
+  Cloud:         {{ m_cloud_name }}
+{% endif %}

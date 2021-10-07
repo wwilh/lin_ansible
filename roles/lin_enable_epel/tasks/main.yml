@@ -1,0 +1,6 @@
+# main tasks file
+---
+- name: Enable repo 
+  package:
+    name: epel-release
+    state: present

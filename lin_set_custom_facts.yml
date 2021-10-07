@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: True
+  gather_facts: yes
+  pre_tasks:
+    - name: PLAY | include global_vars.yml
+      include_vars: ./vars/global_vars.yml
+      
+    - name: PLAY | include morpheus_vars.yml
+      include_vars: ./vars/morpheus_vars.yml
+
+  tasks:
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ m_instance_tenant }}"
+        
+    - name: Play | Setup custom facts
+      include_role:
+        name: lin_set_custom_facts

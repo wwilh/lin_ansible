@@ -1,0 +1,32 @@
+- name: Get the gpg key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /tmp/key.gpg
+    mode: 0700
+
+- name: Install the GPG
+  apt_key:
+    file: /tmp/key.gpg
+    state: present
+
+- name: Install ubuntu packages
+  package: 
+    name: "{{ ubuntu_packages }}"
+    state: latest 
+
+- name: Add the Docker-CE reposoitory
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    update_cache: yes
+    state: present
+
+- name: Install Docker-CE
+  package:
+    name: "{{ docker_ce_packages }}"
+    state: latest
+
+- name: Start and Enable Docker service
+  service: 
+    name: docker
+    state: started
+    enabled: True

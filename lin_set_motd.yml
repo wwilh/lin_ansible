@@ -1,0 +1,15 @@
+---
+- name: Install MOTD
+  hosts: all
+  become: True
+  pre_tasks:
+    - name: PLAY | include global_vars.yml
+      include_vars: ./vars/global_vars.yml
+      
+    - name: PLAY | include morpheus_vars.yml
+      include_vars: ./vars/morpheus_vars.yml
+
+  tasks:
+    - name: PLAY | include MOTD role
+      include_role:
+        name: lin_set_motd

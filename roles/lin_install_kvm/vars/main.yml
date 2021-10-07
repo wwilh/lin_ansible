@@ -1,0 +1,22 @@
+# file for roles variables
+rhel_based:
+  - qemu-kvm 
+  - libvirt 
+  - libvirt-python
+  - libguestfs-tools
+  - virt-install
+  - python-lxml.x86_64
+  - bridge-utils
+
+ubuntu_based_2004:
+  - qemu-kvm 
+  - libvirt-daemon-system
+  - libvirt-clients
+  - bridge-utils
+  - virtinst
+  - virt-manager
+
+user: 
+  username: kvm_admin
+  password: labtest
+  comment: "This is the KVM admin user"

@@ -1,0 +1,38 @@
+- name: GATE | Check to see if Subscription manager is on the server
+  shell: 'which subscription-manager'
+  register: subscription_manager_installed
+  changed_when: false
+  failed_when: false
+  
+- name: GATE | Stat to see if RedHat facts file is on the system
+  stat:
+    path: /etc/rhsm/facts/{{ org }}.fact
+  register: rhsm_facts
+
+- name: GATE | Check for the ansible facts.d directory
+  stat:
+    path: /etc/ansible/facts.d
+  register: ansible_facts_dir
+
+- name: GATE | DEBUG Report on checks for files
+  debug:
+    msg:
+      - "Subscription-manager install status: {{ subscription_manager_installed.rc }}" 
+      - "Satellite Facts: {{ rhsm_facts.stat.exists }}"
+      - "Ansible Facts Directory: {{ ansible_facts_dir.stat.exists }}"
+
+- name: GATE | Run block for variable checks 
+  block:
+  - name: GATE | Fail if required variables are empty
+    fail:
+        msg: "{{ item.name }} is empty please provide value"
+    loop:
+        - {name: "m_instance_context", var: "{{ m_instance_context }}"}
+        - {name: "m_description", var: "{{ m_description }}"}
+        - {name: "m_created_by", var: "{{ m_created_by }}"}
+        - {name: "m_cloud_code", var: "{{ m_cloud_code }}"}
+        - {name: "application", var: "{{ application }}"}
+        - {name: "contact_email_group", var: "{{ contact_email_group }}"}
+        - {name: "tier", var: "{{ tier }}"}
+    when: item.var == ""
+  when: morpheus | length == 0

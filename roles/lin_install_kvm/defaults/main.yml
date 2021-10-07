@@ -1,0 +1,2 @@
+# main file for defaults for vars
+user_pass: "{{ user_pass | d('') }}"

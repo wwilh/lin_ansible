@@ -1,0 +1,9 @@
+- name: MAIN | Create the Ansible facts directory if it is not there 
+  file:
+    path: /etc/ansible/facts.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when: > 
+    ansible_facts_dir.stat.isdir is undefined 

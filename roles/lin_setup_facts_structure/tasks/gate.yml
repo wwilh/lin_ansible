@@ -1,0 +1,5 @@
+- name: GATE | Check for default ansible facts directory
+  ansible.builtin.stat:
+    path: /etc/ansible/facts.d
+  register: ansible_facts_dir
+

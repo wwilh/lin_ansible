@@ -1,0 +1,7 @@
+---
+- name: lin_enable_epel 
+  hosts: all
+  become: true 
+  roles:
+    - lin_enable_epel
+  

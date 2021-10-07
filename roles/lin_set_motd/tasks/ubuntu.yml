@@ -1,0 +1,12 @@
+- name: UBUNTU | Modify updater
+  ansible.builtin.file: 
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0600
+  loop:
+    - "{{ dir }}10-help-text"
+    - "{{ dir }}50-motd-news"
+    - "{{ dir }}90-updates-available"
+    - "{{ dir }}91-release-upgrade"
+    - "{{ dir }}92-unattended-upgrades"

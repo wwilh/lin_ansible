@@ -1,0 +1,28 @@
+- name: Install KVM packages
+  ansible.builtin.package:
+    name: "{{ ubuntu_based_2004 }}"
+    state: latest
+  when: > 
+    isUBUNTU2004
+
+- name: Ensure services are started and enabled
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  loop:
+    - libvirtd
+
+- name: Collect facts about system services
+  ansible.builtin.service_facts:
+  register: services_state
+
+- name: Get status of KVM 
+  ansible.builtin.debug:
+    var: "{{ item }}"
+  loop: 
+    - ansible_facts.services['libvirtd.service'].state
+    - ansible_facts.services['libvirt-guests.service'].state
+
+- name: User.yml | Create and add user to KVM groups
+  include: user.yml

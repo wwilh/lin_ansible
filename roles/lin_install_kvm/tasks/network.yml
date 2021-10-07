@@ -1,0 +1,16 @@
+- name: Define the lab_br network
+  community.libvirt.virt_net:
+    command: define
+    name: lab_br
+    xml: '{{ lookup("template", "network.xml.j2") }}'
+
+- name: Create the lab_br network
+  community.libvirt.virt_net:
+    command: create
+    autostart: yes
+    name: lab_br
+
+- name: Turn lab_br on 
+  community.libvirt.virt_net:
+    name: lab_br
+    state: active
