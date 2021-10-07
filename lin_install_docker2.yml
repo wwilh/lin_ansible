@@ -1,0 +1,13 @@
+---
+- name: Install Docker
+  hosts: all
+  become: True
+  pre_tasks:
+    - name: include global_vars.yml
+      include_vars: ./vars/global_vars.yml
+
+    - name: include morpheus_vars.yml
+      include_vars: ./vars/morpheus_vars.yml
+
+  roles:
+    - lin_install_docker
