@@ -1,0 +1,8 @@
+---
+- name: Install API Components
+  host: all
+  remote_users: root
+  tasks:
+  - name: docker_image_stuff
+    docker_images:
+      name: envoyproxy/envoy:v1.19.1
