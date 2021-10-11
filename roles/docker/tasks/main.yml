@@ -1,0 +1,130 @@
+# (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+---
+# Install docker on ubuntu
+# I could really be using https://github.com/angstwad/docker.ubuntu here
+# but this is simple enough that I made my own role.
+
+- name: Get the kernel version
+  command: uname -r
+  register: kernel_version
+  
+- name: Update apt packages
+  retries: 10
+  delay: 60
+  register: result
+  until: result is not failed
+  apt:
+    update_cache: yes
+    
+- name: Install docker dependencies
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  with_items:
+    #- linux-image-extra-{{ kernel_version.stdout }}
+    - linux-image-extra-virtual
+    - apt-transport-https
+    - ca-certificates
+    - python2.7
+    - python-pip
+    - python3-pip
+    - python2.7-dev
+    - selinux-utils
+
+- name: docker | Upgrade pip
+  pip:
+    name: pip
+    extra_args: --upgrade
+
+- name: Install apt key for docker repo
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add the repo for docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+    state: present
+    update_cache: yes
+
+- name: Update apt packages
+  apt:
+    update_cache: yes
+
+- name: Install docker-engine
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+
+- name: Add docker access
+  become: yes
+  group:
+    name: docker
+    state: present
+
+- name: Show ansible user
+  become: yes
+  debug:
+    msg: "Add {{ ansible_ssh_user }} to docker group"
+
+- name: Add ansible user to docker
+  become: yes
+  user:
+    name: "{{ ansible_ssh_user }}"
+    groups: docker
+    append: yes
+
+- name: Change docker group ID
+  become: yes
+  command: groupmod --gid 998 docker
+
+# Configure proxy settings.
+
+- name: Configure proxy
+  debug:
+    msg: "Configuring corporate proxy"
+
+- name: Create systemd drop-in directory for docker
+  become: yes
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+
+- name: Copy the dns conf
+  become: yes
+  template:
+    src: roles/docker/templates/30-dns.conf.j2
+    dest: /etc/systemd/system/docker.service.d/30-dns.conf
+    
+- name: Copy the proxy conf
+  become: yes
+  template:
+    src: roles/docker/templates/20-proxy.conf.j2
+    dest: /etc/systemd/system/docker.service.d/20-proxy.conf
+
+- name: Reload systemctl
+  become: yes
+  command: systemctl daemon-reload
+
+- name: Pause for 15 seconds to see if the reload is fine
+  pause:
+    seconds: 15
+
+- name: Restart docker
+  service:
+    name: docker
+    state: restarted
+
+- name: Allow all external traffic
+  become: yes
+  command: iptables -A DOCKER -j ACCEPT
+
+- name: Download docker-compose
+  become: yes
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.25.4/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'

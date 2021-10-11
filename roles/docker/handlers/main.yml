@@ -1,0 +1,7 @@
+#(C) Copyright 2020 Hewlett Packard Enterprise Development LP
+---
+# Handler for the docker cluster
+
+  - name: restart docker
+    service: name=docker state=restarted
+    become: yes

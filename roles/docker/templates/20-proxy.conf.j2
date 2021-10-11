@@ -1,0 +1,7 @@
+# (C) Copyright 2017-2019 Hewlett Packard Enterprise Development LP
+[Service]
+Environment="http_proxy={{ ansible_env.http_proxy }}"
+Environment="https_proxy={{ ansible_env.https_proxy }}"
+Environment="HTTP_PROXY={{ ansible_env.http_proxy }}"
+Environment="HTTPS_PROXY={{ ansible_env.https_proxy }}"
+Environment="no_proxy=127.0.0.1,localhost,docker.sock,.vm"
