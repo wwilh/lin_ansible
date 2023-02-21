@@ -1,0 +1,38 @@
+- hosts: all
+  vars:
+    nodejs_version: "12.x"
+    nodejs_install_npm_user: "{{ ansible_user | default(ansible_user_id) }}"
+    npm_config_prefix: "/usr/local/lib/npm"
+    npm_config_unsafe_perm: "true"
+ 
+  roles:
+  - nodejs
+  tasks:
+    - name: install jq
+      yum:
+        name: jq
+        state: latest
+    
+    - name: create app directory
+      file:
+        path: /app
+        state: directory
+    - name: clone chat app
+      git:
+        repo: https://github.com/cxteamdemo/anonymouse-realtime-chat-app.git
+        dest: /app
+    - name: Install deps
+      shell: npm install
+      args:
+        chdir: /app
+      ignore_errors: yes
+    - name: Start App
+      shell: nohup npm start &
+      args:
+        chdir: /app
+      ignore_errors: yes
+    - name: stop firewalld
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: no

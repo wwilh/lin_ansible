@@ -1,0 +1,17 @@
+- hosts: all
+  vars:
+    mongodb_version: "4.4"
+    mongodb_manage_service: true
+    mongodb_manage_systemd_unit: true
+    mongodb_net_bindip: 0.0.0.0
+    mongodb_net_port: 27017
+    mongodb_storage_dbpath: /data/db # Directory for datafiles
+    mongodb_storage_dirperdb: false # Use one directory per DB
+  roles:
+  - mongo
+  tasks:
+    - name: stop firewalld
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
