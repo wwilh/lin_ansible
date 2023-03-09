@@ -8,3 +8,6 @@
   - name: Print debug message
     debug:
       msg: Hello, world!
+  - name: Debug Morpheus user name
+    debug:
+      msg: "{{ lookup('env', 'USER') }}"
