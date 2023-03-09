@@ -8,6 +8,9 @@
   - name: Print debug message
     debug:
       msg: Hello, world!
-  - name: Debug Morpheus user name
-    debug:
-      msg: "{{ lookup('env', 'USER') }}"
+  - name: get the username running the deploy
+    become: false
+    local_action: command whoami
+    register: username_on_the_host
+
+  - debug: var=username_on_the_host
